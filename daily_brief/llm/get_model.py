@@ -6,16 +6,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-model: BaseChatModel = ChatGroq(model="openai/gpt-oss-120b")
-
-def init_model(provider: str):
-    global model
-
-    if provider == 'ollama':
-        model = ChatOllama(model="qwen3.5:9b", reasoning=False)
+def get_model(provider: str = 'ollama'):
+    model = ChatOllama(model="qwen3.5:cloud", format="json")
+    if provider == 'groq':
+        model = ChatGroq(model="openai/gpt-oss-120b")
+    
+    return model
 
 if __name__ == "__main__":
-    init_model('ollama')
+    model = get_model('ollama')
     messages = [HumanMessage(content="Hello!")]
     result = model.invoke(messages)
     print(result)

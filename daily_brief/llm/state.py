@@ -1,14 +1,18 @@
-from langgraph.graph import add_messages
-from langchain_core.messages import AnyMessage
+import operator
 from typing_extensions import TypedDict, Annotated
 
-
 class BriefState(TypedDict):
+    provider: str
     location: str
     topic: str
 
-    raw_stories: Annotated[list[AnyMessage], add_messages]
-    analyzed_stories: Annotated[list[AnyMessage], add_messages]
-    connections: Annotated[list[AnyMessage], add_messages]
+    situation: str
+    world_directive: str
+    national_directive: str
+    local_directive: str
+
+    raw_stories: Annotated[list, operator.add]
+    analyzed_stories: Annotated[list, operator.add]
+    connections: Annotated[list, operator.add]
 
     briefing: str
