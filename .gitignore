@@ -9,5 +9,8 @@ wheels/
 # Virtual environments
 .venv
 
+# JSON Files
+*.json
+
 # Evnironment vairables
 .env
