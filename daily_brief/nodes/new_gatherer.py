@@ -16,7 +16,6 @@ class RawStory(BaseModel):
     content: str = Field(description="Content of the news story")
     scope: Literal['world', 'national', 'local'] = Field(description="World scope of the news story")
 
-
 def make_gatherer_node(scope: Literal['world', 'national', 'local'], cache: bool = False):
     async def news_gatherer_node(state: BriefState) -> dict:
         directive_map = {

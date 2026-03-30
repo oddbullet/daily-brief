@@ -7,16 +7,25 @@ from daily_brief.llm.state import BriefState
 
 class AnalyzedStory(BaseModel):
     story_id: str = Field(description="Id of the story")
+    scope: Literal['world', 'national', 'local'] = Field(description="Scope level of the story")
     summary: str = Field(description="Two to three sentence summary of the story")
     sentiment: Literal['positive', 'neutral', 'negative'] = Field(description="Overall sentiment of the news story")
     threat_level: Literal['none', 'low', 'medium', 'high'] = Field(description="Threat level based on how urgent action should be taken")
     relevance_score: int = Field(description="1-10 score for how relevant the story is to the user based on their location and situation")
     categories: list[str] = Field(description="Category or categories that the story falls into (e.g. geopolitics, economy, military, health)")
 
-class AnalyzedStoryBatch(BaseModel):
-    stories: list[AnalyzedStory] = Field(description="List of analyzed stories")
+class LLMAnalyzedStory(BaseModel):
+    story_id: str
+    summary: str
+    sentiment: Literal['positive', 'neutral', 'negative']
+    threat_level: Literal['none', 'low', 'medium', 'high']
+    relevance_score: int
+    categories: list[str]
 
-async def make_analyzer_node(scope: Literal['world', 'national', 'local']):
+class LLMAnalyzedStoryBatch(BaseModel):
+    stories: list[LLMAnalyzedStory]
+
+def make_analyzer_node(scope: Literal['world', 'national', 'local']):
     async def story_analyzer_node(state: BriefState) -> dict:
         scope_stories: list[RawStory] = [
             s for s in state["raw_stories"] if s.scope == scope
@@ -71,10 +80,14 @@ async def make_analyzer_node(scope: Literal['world', 'national', 'local']):
         """
 
         model = get_model(state["provider"])
-        structured_model = model.with_structured_output(schema=AnalyzedStoryBatch, method='json_schema')
-        result = cast(AnalyzedStoryBatch, await structured_model.ainvoke([HumanMessage(content=prompt)]))
+        structured_model = model.with_structured_output(schema=LLMAnalyzedStoryBatch, method='json_schema')
+        result = cast(LLMAnalyzedStoryBatch, await structured_model.ainvoke([HumanMessage(content=prompt)]))
 
-        return {"analyzed_stories": result.stories}
+        analyzed = [
+            AnalyzedStory(scope=scope, **story.model_dump())
+            for story in result.stories
+        ]
+        return {"analyzed_stories": analyzed}
 
     return story_analyzer_node
 
@@ -83,7 +96,6 @@ if __name__ == "__main__":
     import asyncio
     import json
     from phoenix.otel import register
-    from daily_brief.nodes.new_gatherer import RawStory
 
     tracer_provider = register(
         project_name="daily-brief",
@@ -101,7 +113,7 @@ if __name__ == "__main__":
         i += 1
 
     state: BriefState = {
-        "provider": "groq",
+        "provider": "ollama",
         "location": "USA, Ohio",
         "topic": "Iran",
         "situation": data['answer'],
@@ -114,10 +126,11 @@ if __name__ == "__main__":
         "briefing": "",
     }
 
-    node = asyncio.run(make_analyzer_node("national"))
+    node = make_analyzer_node("national")
     result = asyncio.run(node(state))
     print(result, end='\n')
     for r in result['analyzed_stories']:
+        print(r.scope)
         print(r.summary)
         print(r.sentiment)
         print(r.threat_level)
