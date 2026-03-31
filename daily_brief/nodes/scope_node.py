@@ -25,24 +25,27 @@ class ResearchScope(BaseModel):
     )
 
 async def scope_node(state: BriefState) -> dict:
-    tavily = TavilySearch(
-        max_results=10,
-        topic="news",
-        include_answer=True,
-        search_depth="basic",
-        time_range="week",
-    )
+    cache = state.get("tavily_cache", True)
+    location_slug = state["location"].replace(", ", "_").replace(" ", "_")
+    topic_slug = state["topic"].replace(" ", "_")
+    cache_path = f"cache_tavily/{topic_slug}_{location_slug}_scope.json"
 
-    # filename = f"data/tavily_{state['topic']}.json".replace(" ", "_")
-    # with open(filename) as f:
-    #     tavily_results = json.load(f)
-
-    tavily_results = await tavily.ainvoke({"query": f"What is the latest news/updates on {state["topic"]}"})
-
-    if True:
-        filename = f"data/tavily_{state['topic']}.json".replace(" ", "_")
-        with open(filename, "w") as f:
-            json.dump(tavily_results, f, indent=2)
+    if cache and os.path.exists(cache_path):
+        with open(cache_path) as f:
+            tavily_results = json.load(f)
+    else:
+        tavily = TavilySearch(
+            max_results=10,
+            topic="news",
+            include_answer=True,
+            search_depth="basic",
+            time_range="week",
+        )
+        tavily_results = await tavily.ainvoke({"query": f"What is the latest news/updates on {state['topic']}"})
+        if cache:
+            os.makedirs("cache_tavily", exist_ok=True)
+            with open(cache_path, "w") as f:
+                json.dump(tavily_results, f, indent=2)
 
     summary = tavily_results['answer']
     context = "\n".join(
@@ -110,6 +113,7 @@ if __name__ == "__main__":
         "analyzed_stories": [],
         "connections": [],
         "briefing": "",
+        "tavily_cache": True
     }
 
     result = asyncio.run(scope_node(state))

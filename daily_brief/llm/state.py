@@ -5,6 +5,7 @@ class BriefState(TypedDict):
     provider: str
     location: str
     topic: str
+    tavily_cache: bool
 
     situation: str
     world_directive: str

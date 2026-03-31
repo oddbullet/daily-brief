@@ -85,7 +85,6 @@ def briefing_generator_node(state: BriefState):
     - The Executive Summary must be written by you — synthesize, don't copy summaries verbatim.
     - Story cards (World/National/Local sections) must be reproduced exactly as formatted above — do not rewrite or reorder the fields.
     - Cross-Level Connections must be reproduced exactly as provided above.
-    - What to Watch must name specific story IDs (e.g. world_0) so the user can trace them.
     - Output valid GitHub-flavored markdown only. No preamble, no closing remarks.
 
     All analyzed stories for your reference:
@@ -146,6 +145,7 @@ if __name__ == "__main__":
         "analyzed_stories": [],
         "connections": [],
         "briefing": "",
+        'tavily_cache': True
     }
 
     RATE_LIMIT_WAIT = 90

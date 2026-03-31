@@ -8,7 +8,8 @@ from langgraph.graph import START, END, StateGraph
 from typing import Literal
 
 
-def build_graph(scope: list[Literal['world', 'national', 'local']]):
+def build_graph():
+    scope: list[Literal['world', 'national', 'local']] = ['world', 'national', 'local']
     graph = StateGraph(BriefState)
 
     graph.add_node("scope_node", scope_node)
@@ -46,6 +47,7 @@ if __name__ == "__main__":
         "provider": "ollama",
         "location": "USA, Ohio",
         "topic": "AI development",
+        "tavily_cache": True,
         "situation": "",
         "world_directive": "",
         "national_directive": "",
@@ -57,7 +59,7 @@ if __name__ == "__main__":
     }
 
     async def run():
-        graph = build_graph(["world", "national", "local"])
+        graph = build_graph()
         result = await graph.ainvoke(initial_state)
 
         output_path = "data/result_AI_development.md"

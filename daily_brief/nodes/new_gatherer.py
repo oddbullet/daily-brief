@@ -16,7 +16,7 @@ class RawStory(BaseModel):
     content: str = Field(description="Content of the news story")
     scope: Literal['world', 'national', 'local'] = Field(description="World scope of the news story")
 
-def make_gatherer_node(scope: Literal['world', 'national', 'local'], cache: bool = False):
+def make_gatherer_node(scope: Literal['world', 'national', 'local']):
     async def news_gatherer_node(state: BriefState) -> dict:
         directive_map = {
             "world": state["world_directive"],
@@ -45,23 +45,29 @@ def make_gatherer_node(scope: Literal['world', 'national', 'local'], cache: bool
         structured_model = model.with_structured_output(schema=Query, method='json_schema')
         results = cast(Query, await structured_model.ainvoke([HumanMessage(content=prompt)]))
 
-        tavily = TavilySearch(
-            max_results=5,
-            topic="news",
-            include_answer=True,
-            include_raw_content=True,
-            include_usage=True,
-            search_depth="advanced",
-            time_range="week"
-        )
+        cache = state.get("tavily_cache", True)
+        location_slug = state["location"].replace(", ", "_").replace(" ", "_")
+        topic_slug = state["topic"].replace(" ", "_")
+        cache_path = f"cache_tavily/{topic_slug}_{location_slug}_{scope}.json"
 
-        tavily_results = await tavily.ainvoke({"query": results.query})
-
-        if cache:
-            os.makedirs("data", exist_ok=True)
-            filename = f"data/tavily2_ollama_{scope}_{state['topic']}.json".replace(" ", "_")
-            with open(filename, "w") as f:
-                json.dump(tavily_results, f, indent=2)
+        if cache and os.path.exists(cache_path):
+            with open(cache_path) as f:
+                tavily_results = json.load(f)
+        else:
+            tavily = TavilySearch(
+                max_results=5,
+                topic="news",
+                include_answer=True,
+                include_raw_content=True,
+                include_usage=True,
+                search_depth="advanced",
+                time_range="week"
+            )
+            tavily_results = await tavily.ainvoke({"query": results.query})
+            if cache:
+                os.makedirs("cache_tavily", exist_ok=True)
+                with open(cache_path, "w") as f:
+                    json.dump(tavily_results, f, indent=2)
 
         raw_stories = [
             RawStory(
@@ -89,9 +95,9 @@ if __name__ == "__main__":
         auto_instrument=True
     )
 
-    node_world = make_gatherer_node("world", True)
-    node_national = make_gatherer_node("national", True)
-    node_local = make_gatherer_node("local", True)
+    node_world = make_gatherer_node("world")
+    node_national = make_gatherer_node("national")
+    node_local = make_gatherer_node("local")
 
     state: BriefState = {
         "provider": "ollama",
@@ -105,6 +111,7 @@ if __name__ == "__main__":
         "analyzed_stories": [],
         "connections": [],
         "briefing": "",
+        "tavily_cache": True
     }
 
     # asyncio.run(node_world(state))
