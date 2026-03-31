@@ -25,25 +25,24 @@ class ResearchScope(BaseModel):
     )
 
 async def scope_node(state: BriefState) -> dict:
-    # tavily = TavilySearch(
-    #     max_results=10,
-    #     topic="news",
-    #     include_answer=True,
-    #     search_depth="basic",
-    #     time_range="week",
-    # )
+    tavily = TavilySearch(
+        max_results=10,
+        topic="news",
+        include_answer=True,
+        search_depth="basic",
+        time_range="week",
+    )
 
-    filename = f"data/tavily_{state['topic']}.json".replace(" ", "_")
-    with open(filename) as f:
-        tavily_results = json.load(f)
+    # filename = f"data/tavily_{state['topic']}.json".replace(" ", "_")
+    # with open(filename) as f:
+    #     tavily_results = json.load(f)
 
-    # tavily_results = await tavily.ainvoke({"query": f"What is the latest news/updates on {state["topic"]}"})
+    tavily_results = await tavily.ainvoke({"query": f"What is the latest news/updates on {state["topic"]}"})
 
-    # if True:
-    #     os.makedirs("data", exist_ok=True)
-    #     filename = f"data/tavily_{state['topic']}.json".replace(" ", "_")
-    #     with open(filename, "w") as f:
-    #         json.dump(tavily_results, f, indent=2)
+    if True:
+        filename = f"data/tavily_{state['topic']}.json".replace(" ", "_")
+        with open(filename, "w") as f:
+            json.dump(tavily_results, f, indent=2)
 
     summary = tavily_results['answer']
     context = "\n".join(
