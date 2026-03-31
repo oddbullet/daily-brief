@@ -7,6 +7,7 @@ from daily_brief.llm.state import BriefState
 
 class AnalyzedStory(BaseModel):
     story_id: str = Field(description="Id of the story")
+    title: str = Field(description="Title of the story")
     scope: Literal['world', 'national', 'local'] = Field(description="Scope level of the story")
     summary: str = Field(description="Two to three sentence summary of the story")
     sentiment: Literal['positive', 'neutral', 'negative'] = Field(description="Overall sentiment of the news story")
@@ -15,15 +16,11 @@ class AnalyzedStory(BaseModel):
     categories: list[str] = Field(description="Category or categories that the story falls into (e.g. geopolitics, economy, military, health)")
 
 class LLMAnalyzedStory(BaseModel):
-    story_id: str
     summary: str
     sentiment: Literal['positive', 'neutral', 'negative']
     threat_level: Literal['none', 'low', 'medium', 'high']
     relevance_score: int
     categories: list[str]
-
-class LLMAnalyzedStoryBatch(BaseModel):
-    stories: list[LLMAnalyzedStory]
 
 def make_analyzer_node(scope: Literal['world', 'national', 'local']):
     async def story_analyzer_node(state: BriefState) -> dict:
@@ -34,63 +31,59 @@ def make_analyzer_node(scope: Literal['world', 'national', 'local']):
         if not scope_stories:
             return {"analyzed_stories": []}
 
-        stories = state['raw_stories']
         location = state['location']
         situation = state['situation']
-
-        stories_text = "\n\n".join(
-            f"[{s.story_id}] {s.title}\n{s.content}"
-            for s in stories
-        )
-
-        prompt = f"""You are an analyst preparing a {scope}-level news briefing covering all areas of news.
-
-        User location: {location}
-        Current situation: {situation}
-
-        Analyze each of the following {scope} news stories. For each story provide:
-
-        - summary: 2-3 sentences capturing who, what, and why it matters.
-
-        - sentiment: the real-world impact of the story on citizens and society.
-          - positive: improvement, gains, agreements, breakthroughs, de-escalation
-          - neutral: informational or procedural with no clear positive or negative outcome yet
-          - negative: harm, instability, losses, breakdown, or escalation
-          Do NOT use neutral simply because the reporting tone is objective — judge the underlying events.
-
-        - threat_level: how urgently this story could affect the user's safety, finances, community, or daily life.
-          - none: no foreseeable personal or local impact
-          - low: possible indirect or long-term impact (policy shifts, distant events, early-stage developments)
-          - medium: tangible impact likely within weeks or months (market moves, supply disruptions, regulatory changes)
-          - high: immediate or near-term impact on safety, jobs, cost of living, or essential services
-          Apply consistently — stories with similar stakes should share the same threat level regardless of topic.
-
-        - relevance_score: 1-10, how directly this story affects the user given their location and situation.
-          - 1-3: broad global or national story with no plausible local connection
-          - 4-6: national story with indirect local effects (industry trends, policy downstream effects)
-          - 7-8: story with direct local effects (regional employers, state policy, nearby infrastructure)
-          - 9-10: story directly involves or immediately impacts the user's community or region
-
-        - categories: list of applicable categories (e.g. geopolitics, economy, military, diplomacy, legislation, energy, health, technology, security, environment, finance, labor, education)
-
-        Stories:
-        {stories_text}
-
-        Return a JSON object with a "stories" array containing one object per story, preserving the story_id.
-        """
-
         model = get_model(state["provider"])
-        structured_model = model.with_structured_output(schema=LLMAnalyzedStoryBatch, method='json_schema')
-        result = cast(LLMAnalyzedStoryBatch, await structured_model.ainvoke([HumanMessage(content=prompt)]))
+        structured_model = model.with_structured_output(schema=LLMAnalyzedStory, method='json_schema')
 
-        analyzed = [
-            AnalyzedStory(scope=scope, **story.model_dump())
-            for story in result.stories
-        ]
+        analyzed = []
+        for raw in scope_stories:
+            prompt = f"""You are an analyst preparing a {scope}-level news briefing. Analyze the story below and return a JSON object.
+
+            IMPORTANT: You must respond with ONLY a valid JSON object. No explanation, no markdown, no code fences. Raw JSON only.
+
+            User location: {location}
+            Current situation: {situation}
+
+            Story:
+            Title: {raw.title}
+            Content: {raw.content}
+
+            Return this exact JSON structure with no extra fields:
+            {{
+            "summary": "<2-3 sentences: who, what, and why it matters>",
+            "sentiment": "<exactly one of: positive | neutral | negative>",
+            "threat_level": "<exactly one of: none | low | medium | high>",
+            "relevance_score": <integer 1-10>,
+            "categories": ["<category>", ...]
+            }}
+
+            Field rules:
+            - summary: 2-3 sentences. Be factual and concise.
+            - sentiment: judge the real-world impact on citizens, not the reporting tone.
+            positive = improvement, agreements, de-escalation
+            neutral = procedural or unclear outcome
+            negative = harm, instability, escalation
+            - threat_level: how urgently this affects the user's safety, finances, or daily life.
+            none = no foreseeable personal impact
+            low = possible indirect or long-term impact
+            medium = tangible impact within weeks or months
+            high = immediate impact on safety, jobs, or essential services
+            - relevance_score: 1-3 = no local connection, 4-6 = indirect national effects, 7-8 = direct local effects, 9-10 = directly impacts the user's community
+            - categories: choose from geopolitics, economy, military, diplomacy, legislation, energy, health, technology, security, environment, finance, labor, education
+            """
+
+            llm_result = cast(LLMAnalyzedStory, await structured_model.ainvoke([HumanMessage(content=prompt)]))
+            analyzed.append(AnalyzedStory(
+                story_id=raw.story_id,
+                title=raw.title,
+                scope=scope,
+                **llm_result.model_dump()
+            ))
+
         return {"analyzed_stories": analyzed}
 
     return story_analyzer_node
-
 
 if __name__ == "__main__":
     import asyncio
