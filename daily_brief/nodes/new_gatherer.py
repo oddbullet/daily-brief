@@ -46,7 +46,7 @@ def make_gatherer_node(scope: Literal['world', 'national', 'local'], cache: bool
         results = cast(Query, await structured_model.ainvoke([HumanMessage(content=prompt)]))
 
         tavily = TavilySearch(
-            max_results=10,
+            max_results=5,
             topic="news",
             include_answer=True,
             include_raw_content=True,
@@ -70,7 +70,7 @@ def make_gatherer_node(scope: Literal['world', 'national', 'local'], cache: bool
                 content=result["content"],
                 scope=scope
             )
-            for i, result in enumerate(tavily_results["results"])
+            for i, result in enumerate(tavily_results.get("results") or [])
         ]
 
         return {"raw_stories": raw_stories}
