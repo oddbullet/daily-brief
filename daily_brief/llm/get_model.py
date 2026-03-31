@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_model(provider: str = 'ollama'):
-    model = ChatOllama(model="qwen3.5:cloud", format="json")
+    model = ChatOllama(model="gpt-oss:120b-cloud", format="json", reasoning='high')
     if provider == 'groq':
         model = ChatGroq(model="openai/gpt-oss-120b")
     
