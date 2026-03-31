@@ -78,11 +78,13 @@ if __name__ == "__main__":
         auto_instrument=True
     )
 
-    stories = [
-        AnalyzedStory(story_id="world_0", scope="world", summary="Iran launched drone strikes against Gulf oil terminals, disrupting Strait of Hormuz shipping lanes.", sentiment="negative", threat_level="high", relevance_score=6, categories=["geopolitics", "energy", "military"]),
-        AnalyzedStory(story_id="national_0", scope="national", summary="US Congress debates emergency defense supplemental bill as Pentagon requests $200 billion for Iran operations.", sentiment="negative", threat_level="high", relevance_score=9, categories=["politics", "military", "economy"]),
-        AnalyzedStory(story_id="local_0", scope="local", summary="Ohio defense contractors including Raytheon and L3Harris report increased procurement orders tied to Iran conflict.", sentiment="positive", threat_level="low", relevance_score=9, categories=["economy", "military", "manufacturing"]),
-    ]
+    # stories = [
+    #     AnalyzedStory(story_id="world_0", scope="world", summary="Iran launched drone strikes against Gulf oil terminals, disrupting Strait of Hormuz shipping lanes.", sentiment="negative", threat_level="high", relevance_score=6, categories=["geopolitics", "energy", "military"]),
+    #     AnalyzedStory(story_id="national_0", scope="national", summary="US Congress debates emergency defense supplemental bill as Pentagon requests $200 billion for Iran operations.", sentiment="negative", threat_level="high", relevance_score=9, categories=["politics", "military", "economy"]),
+    #     AnalyzedStory(story_id="local_0", scope="local", summary="Ohio defense contractors including Raytheon and L3Harris report increased procurement orders tied to Iran conflict.", sentiment="positive", threat_level="low", relevance_score=9, categories=["economy", "military", "manufacturing"]),
+    # ]
+
+    stories = []
 
     state: BriefState = {
         "provider": "ollama",
