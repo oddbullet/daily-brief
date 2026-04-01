@@ -21,7 +21,7 @@ def cross_level_connector_node(state: BriefState) -> dict:
     stories: list[AnalyzedStory] = state["analyzed_stories"]
 
     if not stories:
-        return {"connections": [], "connections_summary": "There are no connections."}
+        return {"connections": []}
 
     stories_text = "\n".join(
         f"[{s.story_id}] ({s.scope}, {', '.join(s.categories)}) {s.summary}"

@@ -13,15 +13,15 @@ class AnalyzedStory(BaseModel):
     summary: str = Field(description="Two to three sentence summary of the story")
     sentiment: Literal['positive', 'neutral', 'negative'] = Field(description="Overall sentiment of the news story")
     threat_level: Literal['none', 'low', 'medium', 'high'] = Field(description="Threat level based on how urgent action should be taken")
-    relevance_score: int = Field(description="1-10 score for how relevant the story is to the user based on their location and situation")
+    relevance_score: int = Field(ge=0, le=10, description="1-10 score for how relevant the story is to the user based on their location and situation")
     categories: list[str] = Field(description="Category or categories that the story falls into (e.g. geopolitics, economy, military, health)")
 
 class LLMAnalyzedStory(BaseModel):
-    summary: str
-    sentiment: Literal['positive', 'neutral', 'negative']
-    threat_level: Literal['none', 'low', 'medium', 'high']
-    relevance_score: int
-    categories: list[str]
+    summary: str = Field(description="Two to three sentence summary of the story")
+    sentiment: Literal['positive', 'neutral', 'negative'] = Field(description="Overall sentiment of the news story")
+    threat_level: Literal['none', 'low', 'medium', 'high'] = Field(description="Threat level based on how urgent action should be taken")
+    relevance_score: int = Field(ge=0, le=10, description="1-10 score for how relevant the story is to the user based on their location and situation")
+    categories: list[str] = Field(description="Category or categories that the story falls into (e.g. geopolitics, economy, military, health)")
 
 def make_analyzer_node(scope: Literal['world', 'national', 'local']):
     async def story_analyzer_node(state: BriefState) -> dict:
