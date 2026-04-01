@@ -2,8 +2,10 @@ from pydantic import BaseModel, Field
 from langchain_core.messages import AIMessage, HumanMessage
 from daily_brief.llm.get_model import get_model
 from daily_brief.llm.state import BriefState
+from daily_brief.utils.console import console
 
 def briefing_generator_node(state: BriefState):
+    console.print("[bold cyan]Creating briefing...[/bold cyan]")
     analyzed_stories = state['analyzed_stories']
     connections = state['connections']
     location = state['location']

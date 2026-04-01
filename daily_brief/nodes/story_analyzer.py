@@ -4,6 +4,7 @@ from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field
 from typing import Literal, cast
 from daily_brief.llm.state import BriefState
+from daily_brief.utils.console import console
 
 class AnalyzedStory(BaseModel):
     story_id: str = Field(description="Id of the story")
@@ -34,10 +35,11 @@ def make_analyzer_node(scope: Literal['world', 'national', 'local']):
         location = state['location']
         situation = state['situation']
         model = get_model(state["provider"])
-        structured_model = model.with_structured_output(schema=LLMAnalyzedStory, method='json_schema')
+        structured_model = model.with_structured_output(schema=LLMAnalyzedStory, method='json_schema', strict=True)
 
         analyzed = []
-        for raw in scope_stories:
+        for i, raw in enumerate(scope_stories, 1):
+            console.print(f"[bold cyan]Analyzing [green]{scope}[/green] story [white]{i}/{len(scope_stories)}[/white]:[/bold cyan] {raw.title}")
             prompt = f"""You are an analyst preparing a {scope}-level news briefing. Analyze the story below and return a JSON object.
 
             IMPORTANT: You must respond with ONLY a valid JSON object. No explanation, no markdown, no code fences. Raw JSON only.
@@ -117,6 +119,7 @@ if __name__ == "__main__":
         "analyzed_stories": [],
         "connections": [],
         "briefing": "",
+        'tavily_cache': True
     }
 
     node = make_analyzer_node("national")

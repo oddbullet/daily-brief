@@ -4,6 +4,7 @@ from daily_brief.nodes.story_analyzer import AnalyzedStory
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field
 from typing import cast
+from daily_brief.utils.console import console
 
 
 class Connection(BaseModel):
@@ -16,6 +17,7 @@ class ConnectionBatch(BaseModel):
     connections: list[Connection] = Field(description="List of identified cross-level connections. Empty list if none found.")
 
 def cross_level_connector_node(state: BriefState) -> dict:
+    console.print("[bold cyan]Finding connections...[/bold cyan]")
     stories: list[AnalyzedStory] = state["analyzed_stories"]
 
     if not stories:
@@ -62,7 +64,7 @@ def cross_level_connector_node(state: BriefState) -> dict:
     """
 
     model = get_model(state["provider"])
-    structured_model = model.with_structured_output(schema=ConnectionBatch, method='json_schema')
+    structured_model = model.with_structured_output(schema=ConnectionBatch, method='json_schema', strict=True)
     result = cast(ConnectionBatch, structured_model.invoke([HumanMessage(content=prompt)]))
 
     return {"connections": result.connections}
@@ -98,6 +100,7 @@ if __name__ == "__main__":
         "analyzed_stories": stories,
         "connections": [],
         "briefing": "",
+        'tavily_cache':True
     }
 
     result = cross_level_connector_node(state)

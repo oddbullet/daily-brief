@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from typing import Literal, cast
 from daily_brief.llm.get_model import get_model
 from daily_brief.llm.state import BriefState
+from daily_brief.utils.console import console
 
 class Query(BaseModel):
     query: str = Field(description="The query to find news with.")
@@ -18,6 +19,7 @@ class RawStory(BaseModel):
 
 def make_gatherer_node(scope: Literal['world', 'national', 'local']):
     async def news_gatherer_node(state: BriefState) -> dict:
+        console.print(f"[bold cyan]Gathering [green]{scope}[/green] stories...[/bold cyan]")
         directive_map = {
             "world": state["world_directive"],
             "national": state["national_directive"],
@@ -42,7 +44,7 @@ def make_gatherer_node(scope: Literal['world', 'national', 'local']):
         """
 
         model = get_model(state['provider'])
-        structured_model = model.with_structured_output(schema=Query, method='json_schema')
+        structured_model = model.with_structured_output(schema=Query, method='json_schema', strict=True)
         results = cast(Query, await structured_model.ainvoke([HumanMessage(content=prompt)]))
 
         cache = state.get("tavily_cache", True)

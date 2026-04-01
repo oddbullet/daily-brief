@@ -15,7 +15,6 @@ from phoenix.otel import register
 @click.option('--verbose', '-v', is_flag=True, help="Show progess")
 def dailybrief(ctx, location, provider, focus, save, cache, verbose):
     
-
     tracer_provider = register(
         project_name="daily-brief",
         protocol="http/protobuf",
@@ -44,7 +43,7 @@ def dailybrief(ctx, location, provider, focus, save, cache, verbose):
 
         if save:
             date = dt.datetime.now()
-            filename = f"output/{provider}_{location}_{focus}_{date.year}_{date.day}"
+            filename = f"output/{provider}_{location}_{focus}_{date.year}_{date.day}.md"
             with open(filename, 'w', encoding='utf-8') as file:
                 file.write(brief_result)
 

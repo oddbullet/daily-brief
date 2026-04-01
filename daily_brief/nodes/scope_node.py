@@ -4,11 +4,10 @@ from pydantic import BaseModel, Field
 from typing import cast
 from daily_brief.llm.get_model import get_model
 from daily_brief.llm.state import BriefState
+from daily_brief.utils.console import console
 
 import os
 import json
-
-from pydantic import BaseModel, Field
 
 class ResearchScope(BaseModel):
     situation: str = Field(
@@ -25,6 +24,7 @@ class ResearchScope(BaseModel):
     )
 
 async def scope_node(state: BriefState) -> dict:
+    console.print("[bold cyan]Scoping...[/bold cyan]")
     cache = state.get("tavily_cache", True)
     location_slug = state["location"].replace(", ", "_").replace(" ", "_")
     topic_slug = state["topic"].replace(" ", "_")
@@ -81,7 +81,7 @@ async def scope_node(state: BriefState) -> dict:
     """
 
     model = get_model(state["provider"])
-    structured_model = model.with_structured_output(schema=ResearchScope, method="json_schema")
+    structured_model = model.with_structured_output(schema=ResearchScope, method="json_schema", strict=True)
     research_scope = cast(ResearchScope, await structured_model.ainvoke([HumanMessage(content=prompt)]))
     
     return {
