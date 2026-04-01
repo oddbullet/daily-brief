@@ -8,3 +8,10 @@ wheels/
 
 # Virtual environments
 .venv
+
+# JSON and Markdown Files
+*.json
+*.md
+
+# Evnironment vairables
+.env
