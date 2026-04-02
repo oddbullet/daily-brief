@@ -8,7 +8,7 @@ Daily Brief fetches and analyzes news across three scopes, **world**, **national
 
 ## Key Features
 
-- **Causal chain tracing** — explicit world → national → local impact chains
+- **Causal chain tracing** — global news → national → local impact
 - **Structured story analysis** — each story tagged with sentiment, threat level (none/low/medium/high), relevance score (1–10), and topic categories
 - **Swappable LLM providers** — Groq, Ollama, or OpenRouter
 - **Tavily response caching** — reduces API calls and costs during repeated runs
