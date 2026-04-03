@@ -8,12 +8,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_model(provider: str = 'ollama'):
-    model = ChatOllama(model="gpt-oss:120b-cloud", format="json", reasoning='high')
+    model = ChatOllama(model="gpt-oss:120b-cloud", reasoning='high')
     if provider == 'groq':
         model = ChatGroq(model="openai/gpt-oss-120b")
     
     if provider == 'openrouter':
-        model = ChatOpenRouter(model="qwen/qwen3.6-plus-preview:free")
+        model = ChatOpenRouter(model="qwen/qwen3.6-plus:free")
     
     return model
 

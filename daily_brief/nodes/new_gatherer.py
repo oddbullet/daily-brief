@@ -89,13 +89,9 @@ def make_gatherer_node(scope: Literal['world', 'national', 'local']):
 if __name__ == "__main__":
     import asyncio
     from daily_brief.llm.state import BriefState
-    from phoenix.otel import register
+    from daily_brief.utils.phoenix_trace import setup_tracing
 
-    tracer_provider = register(
-        project_name="daily-brief",
-        protocol="http/protobuf",
-        auto_instrument=True
-    )
+    setup_tracing()
 
     node_world = make_gatherer_node("world")
     node_national = make_gatherer_node("national")
