@@ -13,5 +13,5 @@ wheels/
 *.json
 *.md
 
-# Environment vairables
+# Environment variables
 .env
