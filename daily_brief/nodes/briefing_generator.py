@@ -105,13 +105,9 @@ if __name__ == "__main__":
     from daily_brief.nodes.new_gatherer import RawStory
     from daily_brief.nodes.story_analyzer import make_analyzer_node
     from daily_brief.nodes.cross_level_connector import cross_level_connector_node
-    from phoenix.otel import register
+    from daily_brief.utils.phoenix_trace import setup_tracing
 
-    tracer_provider = register(
-        project_name="daily-brief",
-        protocol="http/protobuf",
-        auto_instrument=True
-    )
+    setup_tracing()
 
     scope_files = [
         ('data/tavily_World_Iran.json', 'world'),
@@ -147,7 +143,7 @@ if __name__ == "__main__":
         "analyzed_stories": [],
         "connections": [],
         "briefing": "",
-        'tavily_cache': True
+        'tavily_cache': True,
     }
 
     RATE_LIMIT_WAIT = 90

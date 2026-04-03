@@ -90,13 +90,9 @@ def make_analyzer_node(scope: Literal['world', 'national', 'local']):
 if __name__ == "__main__":
     import asyncio
     import json
-    from phoenix.otel import register
+    from daily_brief.utils.phoenix_trace import setup_tracing
 
-    tracer_provider = register(
-        project_name="daily-brief",
-        protocol="http/protobuf",
-        auto_instrument=True
-    )
+    setup_tracing()
 
     with open('data/tavily2_ollama_USA_Iran.json') as f:
         data = json.load(f)

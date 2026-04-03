@@ -75,7 +75,7 @@ async def scope_node(state: BriefState) -> dict:
     {{
         "situation": <summary>,
         "world_directive": <world_directive>,
-        "national_directive": <local_directive>,
+        "national_directive": <national_directive>,
         "local_directive": <local_directive>
     }}
     """
@@ -94,13 +94,10 @@ async def scope_node(state: BriefState) -> dict:
 if __name__ == "__main__":
     import asyncio
     from daily_brief.llm.state import BriefState
-    from phoenix.otel import register
+    from daily_brief.utils.phoenix_trace import setup_tracing
 
-    tracer_provider = register(
-        project_name="daily-brief",
-        auto_instrument=True
-    )
-
+    setup_tracing()
+    
     state: BriefState = {
         "provider": "groq",
         "location": "USA, Ohio",

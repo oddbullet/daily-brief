@@ -71,14 +71,10 @@ def cross_level_connector_node(state: BriefState) -> dict:
 
 
 if __name__ == "__main__":
-    from phoenix.otel import register
     from daily_brief.nodes.story_analyzer import AnalyzedStory
+    from daily_brief.utils.phoenix_trace import setup_tracing
 
-    tracer_provider = register(
-        project_name="daily-brief",
-        protocol="http/protobuf",
-        auto_instrument=True
-    )
+    setup_tracing()
 
     # stories = [
     #     AnalyzedStory(story_id="world_0", scope="world", summary="Iran launched drone strikes against Gulf oil terminals, disrupting Strait of Hormuz shipping lanes.", sentiment="negative", threat_level="high", relevance_score=6, categories=["geopolitics", "energy", "military"]),
