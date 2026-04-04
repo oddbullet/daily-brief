@@ -1,0 +1,11 @@
+groq:
+  model: openai/gpt-oss-120b
+  fallback: groq/compound
+
+ollama:
+  model: gpt-oss:120b-cloud
+  fallback: minimax-m2.7:cloud
+
+openrouter:
+  model: qwen/qwen3.6-plus:free
+  fallback: nvidia/nemotron-3-super-120b-a12b:free

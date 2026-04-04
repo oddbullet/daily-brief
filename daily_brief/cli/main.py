@@ -1,6 +1,5 @@
 import asyncio
 import datetime as dt
-import re
 import os
 import click
 from daily_brief.llm.build_graph import build_graph
