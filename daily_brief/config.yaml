@@ -1,3 +1,8 @@
+defaults:
+  location: USA, Ohio
+  topic: AI
+  provider: openrouter
+
 groq:
   model: openai/gpt-oss-120b
   fallback: groq/compound
