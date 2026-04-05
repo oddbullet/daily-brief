@@ -65,7 +65,9 @@ def make_gatherer_node(scope: Literal['world', 'national', 'local']):
                 search_depth="advanced",
                 time_range="week"
             )
+            
             tavily_results = await tavily.ainvoke({"query": results.query})
+
             if cache:
                 os.makedirs("cache_tavily", exist_ok=True)
                 with open(cache_path, "w") as f:

@@ -38,7 +38,7 @@ def briefing_generator_node(state: BriefState):
     def format_connections(connections):
         if not connections:
             return "_No cross-level connections identified._"
-        return "\n".join(f"- {c.chain_description}" for c in connections)
+        return "\n\n".join(f"- {c.chain_description}" for c in connections)
 
     world_block = format_stories(stories_by_scope('world'))
     national_block = format_stories(stories_by_scope('national'))

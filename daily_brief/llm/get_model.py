@@ -3,17 +3,10 @@ from langchain_core.language_models import BaseChatModel
 from langchain_groq import ChatGroq
 from langchain_ollama import ChatOllama
 from langchain_openrouter import ChatOpenRouter
+from daily_brief.utils.load_config import _load_config
 from dotenv import load_dotenv
-import yaml
 
 load_dotenv()
-
-def _load_config() -> dict:
-    with open("daily_brief/config.yaml", 'r') as file:
-        try:
-            return yaml.safe_load(file)
-        except yaml.YAMLError as exc:
-            raise RuntimeError(f"Failed to load config file: {exc}")
 
 def _make_ollama(model_name: str):
     reasoning = "high" if "gpt-oss" in model_name else None
@@ -24,7 +17,7 @@ def _make_groq(model_name: str):
     return ChatGroq(model=model_name, reasoning_effort=reasoning)
 
 def _make_openrouter(model_name: str):
-    return ChatOpenRouter(model=model_name, reasoning={"effort": "high", "summary": "auto"})
+    return ChatOpenRouter(model=model_name)
 
 _FACTORIES = {
     'ollama': _make_ollama,
