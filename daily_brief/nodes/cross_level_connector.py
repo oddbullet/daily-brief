@@ -93,6 +93,7 @@ if __name__ == "__main__":
         "national_directive": "",
         "local_directive": "",
         "raw_stories": [],
+        "deduped_stories": [],
         "analyzed_stories": stories,
         "connections": [],
         "briefing": "",

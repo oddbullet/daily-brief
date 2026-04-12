@@ -1,16 +1,16 @@
 defaults:
   location: USA, Ohio
   topic: AI
-  provider: openrouter
+  provider: ollama
 
 groq:
   model: openai/gpt-oss-120b
   fallback: groq/compound
 
 ollama:
-  model: gpt-oss:120b-cloud
+  model: gemma4:31b-cloud
   fallback: minimax-m2.7:cloud
 
 openrouter:
-  model: qwen/qwen3.6-plus:free
-  fallback: nvidia/nemotron-3-super-120b-a12b:free
+  model: openai/gpt-oss-120b:free
+  fallback: openrouter/free

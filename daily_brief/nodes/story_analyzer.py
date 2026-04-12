@@ -26,7 +26,7 @@ class LLMAnalyzedStory(BaseModel):
 def make_analyzer_node(scope: Literal['world', 'national', 'local']):
     async def story_analyzer_node(state: BriefState) -> dict:
         scope_stories: list[RawStory] = [
-            s for s in state["raw_stories"] if s.scope == scope
+            story for story in state["deduped_stories"] if story['scope'] == scope
         ]
 
         if not scope_stories:
@@ -39,7 +39,7 @@ def make_analyzer_node(scope: Literal['world', 'national', 'local']):
 
         analyzed = []
         for i, raw in enumerate(scope_stories, 1):
-            console.print(f"[bold cyan]Analyzing [green]{scope}[/green] story [white]{i}/{len(scope_stories)}[/white]:[/bold cyan] {raw.title}")
+            console.print(f"[bold cyan]Analyzing [green]{scope}[/green] story [white]{i}/{len(scope_stories)}[/white]:[/bold cyan] {raw['title']}")
             prompt = f"""You are an analyst preparing a {scope}-level news briefing. Analyze the story below and return a JSON object.
 
             IMPORTANT: You must respond with ONLY a valid JSON object. No explanation, no markdown, no code fences. Raw JSON only.
@@ -48,8 +48,8 @@ def make_analyzer_node(scope: Literal['world', 'national', 'local']):
             Current situation: {situation}
 
             Story:
-            Title: {raw.title}
-            Content: {raw.content}
+            Title: {raw['title']}
+            Content: {raw['content']}
 
             Return this exact JSON structure with no extra fields:
             {{
@@ -77,8 +77,8 @@ def make_analyzer_node(scope: Literal['world', 'national', 'local']):
 
             llm_result = cast(LLMAnalyzedStory, await structured_model.ainvoke([HumanMessage(content=prompt)]))
             analyzed.append(AnalyzedStory(
-                story_id=raw.story_id,
-                title=raw.title,
+                story_id=raw['story_id'],
+                title=raw['title'],
                 scope=scope,
                 **llm_result.model_dump()
             ))
@@ -94,13 +94,13 @@ if __name__ == "__main__":
 
     setup_tracing()
 
-    with open('data/tavily2_ollama_USA_Iran.json') as f:
+    with open('cache_tavily/Iran_USA_Ohio_national.json') as f:
         data = json.load(f)
 
     raw_stories = []
     i = 0
     for result in data['results']:
-        raw_stories.append(RawStory(story_id=f"story_{i}", title=result['title'], content=result['content'], scope='national'))
+        raw_stories.append(RawStory(story_id=f"story_{i}", title=result['title'], url=result['url'], content=result['content'], scope='national'))
         i += 1
 
     state: BriefState = {
@@ -112,6 +112,7 @@ if __name__ == "__main__":
         "national_directive": "",
         "local_directive": "",
         "raw_stories": raw_stories,
+        "deduped_stories": [],
         "analyzed_stories": [],
         "connections": [],
         "briefing": "",

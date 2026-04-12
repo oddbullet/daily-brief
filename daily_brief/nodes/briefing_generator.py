@@ -125,6 +125,7 @@ if __name__ == "__main__":
             raw_stories.append(RawStory(
                 story_id=f"{scope}_{i}",
                 title=result['title'],
+                url=result['url'],
                 content=result['content'][:1000],
                 scope=cast(Literal['world', 'national', 'local'], scope),
             ))
@@ -140,6 +141,7 @@ if __name__ == "__main__":
         "national_directive": "",
         "local_directive": "",
         "raw_stories": raw_stories,
+        "deduped_stories": [],
         "analyzed_stories": [],
         "connections": [],
         "briefing": "",
