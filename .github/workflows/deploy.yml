@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [master, aws]
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -12,8 +12,6 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      STACK_NAME: ${{ github.ref == 'refs/heads/master' && 'daily-brief' || 'daily-brief-dev' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -38,7 +36,7 @@ jobs:
       - name: Deploy
         run: |
           sam deploy \
-            --stack-name ${{ env.STACK_NAME }} \
+            --stack-name daily-brief \
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
             --capabilities CAPABILITY_IAM \
