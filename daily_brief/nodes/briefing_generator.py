@@ -1,4 +1,3 @@
-from pydantic import BaseModel, Field
 from langchain_core.messages import AIMessage, HumanMessage
 from daily_brief.llm.get_model import get_model
 from daily_brief.llm.state import BriefState
