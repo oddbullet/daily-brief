@@ -7,7 +7,7 @@ AI-powered daily news briefings that trace how global events ripple down to your
 
 ## What It Does
 
-Daily Brief fetches and analyzes news across three scopes — **world**, **national**, and **local** — then generates a structured markdown briefing. The **key feature** is causal chain analysis: it identifies how a geopolitical event at the world level creates ripple effects at the national policy level, and what that ultimately means for your local area.
+Daily Brief fetches and analyzes news across three scopes world, national, and local. It then generates a structured markdown briefing. The key feature is causal chain analysis: it identifies how a global event creates ripple effects at the national level, and how that national event affects your local area.
 
 When deployed to AWS Lambda, the briefing is automatically emailed to you every morning with Amazon SES.
 
