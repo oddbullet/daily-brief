@@ -15,9 +15,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: astral-sh/setup-uv@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
@@ -30,20 +28,16 @@ jobs:
 
       - uses: aws-actions/setup-sam@v2
 
+      - name: Generate requirements.txt
+        run: uv export --no-dev --no-hashes --format requirements.txt > requirements.txt
+
       - name: SAM build
         run: sam build
 
       - name: Deploy
         run: |
-          sam deploy \
-            --stack-name daily-brief \
-            --no-confirm-changeset \
-            --no-fail-on-empty-changeset \
-            --capabilities CAPABILITY_IAM \
-            --resolve-s3 \
-            --region us-east-1 \
-            --parameter-overrides \
-              TavilyApiKey="${{ secrets.TAVILY_API_KEY }}" \
-              OpenRouterApiKey="${{ secrets.OPENROUTER_API_KEY }}" \
-              SesSender="${{ secrets.SES_SENDER }}" \
-              SesRecipient="${{ secrets.SES_RECIPIENT }}"
+          sam deploy --parameter-overrides \
+            TavilyApiKey="${{ secrets.TAVILY_API_KEY }}" \
+            OpenRouterApiKey="${{ secrets.OPENROUTER_API_KEY }}" \
+            SesSender="${{ secrets.SES_SENDER }}" \
+            SesRecipient="${{ secrets.SES_RECIPIENT }}"
