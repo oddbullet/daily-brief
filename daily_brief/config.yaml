@@ -1,7 +1,7 @@
 defaults:
   location: USA, Ohio
-  topic: AI
-  provider: ollama
+  topic: Iran
+  provider: openrouter
 
 groq:
   model: openai/gpt-oss-120b
@@ -12,5 +12,5 @@ ollama:
   fallback: minimax-m2.7:cloud
 
 openrouter:
-  model: openai/gpt-oss-120b:free
+  model: openai/gpt-4.1-nano
   fallback: openrouter/free

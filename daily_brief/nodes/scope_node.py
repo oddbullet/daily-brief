@@ -81,7 +81,7 @@ async def scope_node(state: BriefState) -> dict:
     """
 
     model = get_model(state["provider"])
-    structured_model = model.with_structured_output(schema=ResearchScope, method="json_schema", strict=True)
+    structured_model = model.with_structured_output(schema=ResearchScope, method="json_schema")
     research_scope = cast(ResearchScope, await structured_model.ainvoke([HumanMessage(content=prompt)]))
     
     return {
