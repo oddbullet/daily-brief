@@ -45,7 +45,7 @@ def make_gatherer_node(scope: Literal['world', 'national', 'local']):
         """
 
         model = get_model(state['provider'])
-        structured_model = model.with_structured_output(schema=Query, method='json_schema', strict=True)
+        structured_model = model.with_structured_output(schema=Query, method='json_schema')
         results = cast(Query, await structured_model.ainvoke([HumanMessage(content=prompt)]))
 
         cache = state.get("tavily_cache", True)

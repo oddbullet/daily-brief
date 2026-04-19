@@ -35,7 +35,7 @@ def make_analyzer_node(scope: Literal['world', 'national', 'local']):
         location = state['location']
         situation = state['situation']
         model = get_model(state["provider"])
-        structured_model = model.with_structured_output(schema=LLMAnalyzedStory, method='json_schema', strict=True)
+        structured_model = model.with_structured_output(schema=LLMAnalyzedStory, method='json_schema')
 
         analyzed = []
         for i, raw in enumerate(scope_stories, 1):

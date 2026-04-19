@@ -8,9 +8,9 @@ from daily_brief.utils.console import console
 
 
 class Connection(BaseModel):
-    world_story_id: str | None = Field(description="story_id of the world-level story in the chain, or null if not applicable")
-    national_story_id: str | None = Field(description="story_id of the national-level story in the chain, or null if not applicable")
-    local_story_id: str | None = Field(description="story_id of the local-level story in the chain, or null if not applicable")
+    world_story_id: str = Field(description="story_id of the world-level story in the chain, or empty string if not applicable")
+    national_story_id: str = Field(description="story_id of the national-level story in the chain, or empty string if not applicable")
+    local_story_id: str = Field(description="story_id of the local-level story in the chain, or empty string if not applicable")
     chain_description: str = Field(description="Human-readable chain: '<world event> (world, <category>) → <national impact> (national, <category>) → <local impact> (local, <category>)'")
 
 class ConnectionBatch(BaseModel):
@@ -54,9 +54,9 @@ def cross_level_connector_node(state: BriefState) -> dict:
     {{
       "connections": [
         {{
-          "world_story_id": "<story_id or null>",
-          "national_story_id": "<story_id or null>",
-          "local_story_id": "<story_id or null>",
+          "world_story_id": "<story_id or empty string>",
+          "national_story_id": "<story_id or empty string>",
+          "local_story_id": "<story_id or empty string>",
           "chain_description": "<world event> (world, <category>) → <national event> (national, <category>) → <local impact> (local, <category>)"
         }}
       ]
@@ -64,7 +64,7 @@ def cross_level_connector_node(state: BriefState) -> dict:
     """
 
     model = get_model(state["provider"])
-    structured_model = model.with_structured_output(schema=ConnectionBatch, method='json_schema', strict=True)
+    structured_model = model.with_structured_output(schema=ConnectionBatch)
     result = cast(ConnectionBatch, structured_model.invoke([HumanMessage(content=prompt)]))
 
     return {"connections": result.connections}
