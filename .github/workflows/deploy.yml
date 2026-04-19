@@ -14,36 +14,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: astral-sh/setup-uv@v4
-
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
 
       - uses: aws-actions/setup-sam@v2
 
+      - name: Generate requirements.txt
+        run: uv export --no-dev --no-hashes --format requirements.txt > requirements.txt
+
       - name: SAM build
         run: sam build
 
+      - name: Clean and size check
+        run: |
+          BUILD_DIR=.aws-sam/build/DailyBriefFunction
+          find "$BUILD_DIR" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+          find "$BUILD_DIR" -type f -name "*.pyc" -delete 2>/dev/null || true
+          SIZE_MB=$(( $(du -sk "$BUILD_DIR" | cut -f1) / 1024 ))
+          echo "Package size: ${SIZE_MB} MB (limit: 250 MB)"
+          [ "$SIZE_MB" -lt 240 ] || { echo "ERROR: Package too close to 250 MB Lambda limit"; exit 1; }
+
       - name: Deploy
         run: |
-          sam deploy \
-            --stack-name daily-brief \
-            --no-confirm-changeset \
-            --no-fail-on-empty-changeset \
-            --capabilities CAPABILITY_IAM \
-            --resolve-s3 \
-            --region us-east-1 \
-            --parameter-overrides \
-              TavilyApiKey="${{ secrets.TAVILY_API_KEY }}" \
-              OpenRouterApiKey="${{ secrets.OPENROUTER_API_KEY }}" \
-              SesSender="${{ secrets.SES_SENDER }}" \
-              SesRecipient="${{ secrets.SES_RECIPIENT }}"
+          sam deploy --parameter-overrides \
+            TavilyApiKey="${{ secrets.TAVILY_API_KEY }}" \
+            OpenRouterApiKey="${{ secrets.OPENROUTER_API_KEY }}" \
+            SesSender="${{ secrets.SES_SENDER }}" \
+            SesRecipient="${{ secrets.SES_RECIPIENT }}"

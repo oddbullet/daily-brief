@@ -24,8 +24,6 @@ Globals:
 Resources:
   DailyBriefFunction:
     Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
     Properties:
       CodeUri: .
       Handler: daily_brief.lambda_handler.handler

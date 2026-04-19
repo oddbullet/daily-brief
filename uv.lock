@@ -264,7 +264,6 @@ name = "daily-brief"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "boto3" },
     { name = "click" },
     { name = "langchain-groq" },
     { name = "langchain-ollama" },
@@ -276,6 +275,9 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+lambda = [
+    { name = "boto3" },
+]
 tracing = [
     { name = "arize-phoenix-otel" },
     { name = "openinference-instrumentation-langchain" },
@@ -284,7 +286,7 @@ tracing = [
 [package.metadata]
 requires-dist = [
     { name = "arize-phoenix-otel", marker = "extra == 'tracing'", specifier = ">=0.15.0" },
-    { name = "boto3", specifier = ">=1.38.0" },
+    { name = "boto3", marker = "extra == 'lambda'", specifier = ">=1.38.0" },
     { name = "click", specifier = ">=8.3.1" },
     { name = "langchain-groq", specifier = ">=1.1.2" },
     { name = "langchain-ollama", specifier = ">=1.0.1" },
@@ -295,7 +297,7 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "rich", specifier = ">=14.3.3" },
 ]
-provides-extras = ["tracing"]
+provides-extras = ["lambda", "tracing"]
 
 [[package]]
 name = "distro"
