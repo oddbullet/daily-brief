@@ -34,6 +34,15 @@ jobs:
       - name: SAM build
         run: sam build
 
+      - name: Clean and size check
+        run: |
+          BUILD_DIR=.aws-sam/build/DailyBriefFunction
+          find "$BUILD_DIR" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+          find "$BUILD_DIR" -type f -name "*.pyc" -delete 2>/dev/null || true
+          SIZE_MB=$(( $(du -sk "$BUILD_DIR" | cut -f1) / 1024 ))
+          echo "Package size: ${SIZE_MB} MB (limit: 250 MB)"
+          [ "$SIZE_MB" -lt 240 ] || { echo "ERROR: Package too close to 250 MB Lambda limit"; exit 1; }
+
       - name: Deploy
         run: |
           sam deploy --parameter-overrides \
