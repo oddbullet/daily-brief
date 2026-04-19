@@ -3,7 +3,7 @@ import os
 from langchain_core.messages import HumanMessage
 from langchain_tavily import TavilySearch
 from pydantic import BaseModel, Field
-from typing import Literal, cast
+from typing import Literal, TypedDict, cast
 from daily_brief.llm.get_model import get_model
 from daily_brief.llm.state import BriefState
 from daily_brief.utils.console import console
@@ -11,11 +11,12 @@ from daily_brief.utils.console import console
 class Query(BaseModel):
     query: str = Field(description="The query to find news with.")
 
-class RawStory(BaseModel):
-    story_id: str = Field(description="Id of the story")
-    title: str = Field(description="Title of the news story")
-    content: str = Field(description="Content of the news story")
-    scope: Literal['world', 'national', 'local'] = Field(description="World scope of the news story")
+class RawStory(TypedDict):
+    story_id: str
+    title: str
+    content: str
+    url: str
+    scope: Literal['world', 'national', 'local']
 
 def make_gatherer_node(scope: Literal['world', 'national', 'local']):
     async def news_gatherer_node(state: BriefState) -> dict:
@@ -78,6 +79,7 @@ def make_gatherer_node(scope: Literal['world', 'national', 'local']):
                 story_id=f"{scope}_{i}",
                 title=result['title'],
                 content=result["content"],
+                url=result["url"],
                 scope=scope
             )
             for i, result in enumerate(tavily_results.get("results") or [])
@@ -108,6 +110,7 @@ if __name__ == "__main__":
         "local_directive":"Ohio defense contractors Iran conflict procurement jobs manufacturing impact",
         "topic": "Iran",
         "raw_stories": [],
+        "deduped_stories": [],
         "analyzed_stories": [],
         "connections": [],
         "briefing": "",

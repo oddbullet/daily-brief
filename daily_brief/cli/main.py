@@ -40,6 +40,7 @@ def dailybrief(ctx, location: str, provider: str, focus: str, save: bool, cache:
         "national_directive": "",
         "local_directive": "",
         "raw_stories": [],
+        "deduped_stories": [],
         "analyzed_stories": [],
         "connections": [],
         "briefing": "",

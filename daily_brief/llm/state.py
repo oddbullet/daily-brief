@@ -13,6 +13,7 @@ class BriefState(TypedDict):
     local_directive: str
 
     raw_stories: Annotated[list, operator.add]
+    deduped_stories: list
     analyzed_stories: Annotated[list, operator.add]
     connections: Annotated[list, operator.add]
 

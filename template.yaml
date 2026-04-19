@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  TavilyApiKey:
+    Type: String
+    NoEcho: true
+  OpenRouterApiKey:
+    Type: String
+    NoEcho: true
+  SesSender:
+    Type: String
+    NoEcho: true
+  SesRecipient:
+    Type: String
+    NoEcho: true
+
+Globals:
+  Function:
+    Runtime: python3.13
+    Architectures:
+      - x86_64
+
+Resources:
+  DailyBriefFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: .
+      Handler: daily_brief.lambda_handler.handler
+      Timeout: 600
+      MemorySize: 1024
+      Environment:
+        Variables:
+          TAVILY_API_KEY: !Ref TavilyApiKey
+          OPENROUTER_API_KEY: !Ref OpenRouterApiKey
+          SES_SENDER: !Ref SesSender
+          SES_RECIPIENT: !Ref SesRecipient
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:SendRawEmail
+              Resource: "*"
+      Events:
+        DailySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 11 ? * * *)
+            Description: Run daily-brief every morning
+            Enabled: true
+
+  DailyBriefLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${DailyBriefFunction}
+      RetentionInDays: 30

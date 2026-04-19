@@ -1,5 +1,6 @@
 from daily_brief.nodes.scope_node import scope_node
 from daily_brief.nodes.new_gatherer import make_gatherer_node
+from daily_brief.nodes.remove_dup_stories import remove_duplicate_story_node
 from daily_brief.nodes.briefing_generator import briefing_generator_node
 from daily_brief.nodes.cross_level_connector import cross_level_connector_node
 from daily_brief.nodes.story_analyzer import make_analyzer_node
@@ -18,6 +19,7 @@ def build_graph():
         graph.add_node(f"new_gatherer_node_{location}", make_gatherer_node(location))
         graph.add_node(f"story_analyzer_node_{location}", make_analyzer_node(location))
 
+    graph.add_node(remove_duplicate_story_node)
     graph.add_node(cross_level_connector_node)
     graph.add_node(briefing_generator_node)
 
@@ -25,7 +27,8 @@ def build_graph():
 
     for location in scope:
         graph.add_edge("scope_node", f"new_gatherer_node_{location}")
-        graph.add_edge(f"new_gatherer_node_{location}", f"story_analyzer_node_{location}")
+        graph.add_edge(f"new_gatherer_node_{location}", "remove_duplicate_story_node")
+        graph.add_edge("remove_duplicate_story_node", f"story_analyzer_node_{location}")
         graph.add_edge(f"story_analyzer_node_{location}", "cross_level_connector_node")
 
     graph.add_edge("cross_level_connector_node", "briefing_generator_node")
@@ -53,6 +56,7 @@ if __name__ == "__main__":
         "national_directive": "",
         "local_directive": "",
         "raw_stories": [],
+        "deduped_stories": [],
         "analyzed_stories": [],
         "connections": [],
         "briefing": "",

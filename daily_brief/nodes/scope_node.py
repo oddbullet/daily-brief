@@ -99,7 +99,7 @@ if __name__ == "__main__":
     setup_tracing()
     
     state: BriefState = {
-        "provider": "groq",
+        "provider": "openrouter",
         "location": "USA, Ohio",
         "topic": "Iran",
         "situation": "",
@@ -107,6 +107,7 @@ if __name__ == "__main__":
         "national_directive": "",
         "local_directive": "",
         "raw_stories": [],
+        "deduped_stories": [],
         "analyzed_stories": [],
         "connections": [],
         "briefing": "",
