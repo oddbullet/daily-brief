@@ -15,3 +15,7 @@ wheels/
 
 # Environment variables
 .env
+
+# SAM build artifacts
+.aws-sam/
+requirements.txt
