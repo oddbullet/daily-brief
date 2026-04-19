@@ -1,6 +1,6 @@
 defaults:
   location: USA, Ohio
-  topic: Iran
+  topic: AI
   provider: openrouter
 
 groq:

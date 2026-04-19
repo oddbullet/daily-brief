@@ -11,10 +11,9 @@ from daily_brief.utils.load_config import _load_config
 def handler(event, context):
     config = _load_config()
 
-    # Env vars override config.yaml defaults
-    provider = os.environ.get("BRIEF_PROVIDER") or config["defaults"]["provider"]
-    location = os.environ.get("BRIEF_LOCATION") or config["defaults"]["location"]
-    topic = os.environ.get("BRIEF_TOPIC") or config["defaults"]["topic"]
+    provider = config["defaults"]["provider"]
+    location = config["defaults"]["location"]
+    topic = config["defaults"]["topic"]
 
     sender = os.environ["SES_SENDER"]
     recipient = os.environ["SES_RECIPIENT"]
